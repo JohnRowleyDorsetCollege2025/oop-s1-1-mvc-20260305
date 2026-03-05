@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="Invoices.MVC/Invoices.MVC.csproj" />
   <Project Path="Library.Domain/Library.Domain.csproj" />
   <Project Path="Library.MVC/Library.MVC.csproj" />
   <Project Path="Library.Tests/Library.Tests.csproj" />
