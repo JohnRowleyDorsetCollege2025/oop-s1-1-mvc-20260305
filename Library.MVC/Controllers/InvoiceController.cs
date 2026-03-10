@@ -31,6 +31,8 @@ namespace Library.MVC.Controllers
 
             var invoice = await _context.Invoices
                 .Include(i => i.Customer)
+                .Include(i => i.Lines)
+                    .ThenInclude(l => l.Product)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (invoice == null)
             {
