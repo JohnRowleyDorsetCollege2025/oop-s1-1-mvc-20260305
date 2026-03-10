@@ -10,11 +10,11 @@ using Library.MVC.Data;
 
 namespace Library.MVC.Controllers.InvoiceDemo
 {
-    public class InvoicesController : Controller
+    public class Invoices0Controller : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public InvoicesController(ApplicationDbContext context)
+        public Invoices0Controller(ApplicationDbContext context)
         {
             _context = context;
         }
