@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Library.Domain;
+using Library.MVC.Data;
+using Library.MVC.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Library.Domain;
-using Library.MVC.Data;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Library.MVC.Controllers
 {
@@ -22,7 +23,17 @@ namespace Library.MVC.Controllers
         // GET: Customers
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Customers.ToListAsync());
+            var customers = await _context.Customers
+                .OrderBy(c => c.Name)
+                .Select(c => new CustomerSummaryViewModel
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    InvoiceCount = c.Invoices.Count
+                })
+                .ToListAsync();
+
+            return View(customers);
         }
 
         // GET: Customers/Details/5
@@ -152,6 +163,65 @@ namespace Library.MVC.Controllers
         private bool CustomerExists(int id)
         {
             return _context.Customers.Any(e => e.Id == id);
+        }
+        // GET: Customers/InvoiceDetail/5  — detail of one invoice, with customer context
+        public async Task<IActionResult> InvoiceDetail(int? id)
+        {
+            if (id is null) return NotFound();
+
+            var invoice = await _context.Invoices
+                .Include(i => i.Customer)
+                .Include(i => i.Lines)
+                    .ThenInclude(l => l.Product)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (invoice is null) return NotFound();
+
+            var vm = new CustomerInvoiceDetailViewModel
+            {
+                CustomerId = invoice.Customer!.Id,
+                CustomerName = invoice.Customer.Name,
+                InvoiceId = invoice.Id,
+                InvoiceDate = invoice.InvoiceDate,
+                Lines = invoice.Lines.Select(l => new InvoiceLineDetailsModel
+                {
+                    ProductName = l.Product!.Name,
+                    Quantity = l.Quantity,
+                    UnitPrice = l.UnitPrice
+                }).ToList()
+            };
+
+            return View(vm);
+        }
+        // GET: Customers/Invoices/5  — lists all invoices for a customer
+        public async Task<IActionResult> Invoices(int? id)
+        {
+            if (id is null) return NotFound();
+
+            var customer = await _context.Customers
+                .Include(c => c.Invoices)
+                    .ThenInclude(i => i.Lines)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (customer is null) return NotFound();
+
+            var vm = new CustomerInvoicesViewModel
+            {
+                CustomerId = customer.Id,
+                CustomerName = customer.Name,
+                Invoices = customer.Invoices
+                    .OrderByDescending(i => i.InvoiceDate)
+                    .Select(i => new CustomerInvoiceRowViewModel
+                    {
+                        InvoiceId = i.Id,
+                        InvoiceDate = i.InvoiceDate,
+                        LineCount = i.Lines.Count,
+                        Total = i.Lines.Sum(l => l.Quantity * l.UnitPrice)
+                    })
+                    .ToList()
+            };
+
+            return View(vm);
         }
     }
 }
