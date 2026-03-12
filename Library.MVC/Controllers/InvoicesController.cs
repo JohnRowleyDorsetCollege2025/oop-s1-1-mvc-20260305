@@ -8,13 +8,13 @@ using Microsoft.EntityFrameworkCore;
 using Library.Domain;
 using Library.MVC.Data;
 
-namespace Library.MVC.Controllers.InvoiceDemo
+namespace Library.MVC.Controllers
 {
-    public class Invoices0Controller : Controller
+    public class InvoicesController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public Invoices0Controller(ApplicationDbContext context)
+        public InvoicesController(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -48,7 +48,6 @@ namespace Library.MVC.Controllers.InvoiceDemo
         // GET: Invoices/Create
         public IActionResult Create()
         {
-            ViewData["DorsetTeacher"] = "John";
             ViewData["CustomerId"] = new SelectList(_context.Customers, "Id", "Name");
             return View();
         }
