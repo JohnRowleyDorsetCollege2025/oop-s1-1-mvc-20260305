@@ -1,41 +1,39 @@
 ﻿@model IEnumerable<Library.Domain.Invoice>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Invoices";
 }
 
-<h1>Index</h1>
+<h1>Invoices</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-primary">Create Invoice</a>
 </p>
+
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.InvoiceDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Customer)
-            </th>
+            <th>Id</th>
+            <th>Date</th>
+            <th>Customer</th>
+            <th>Total</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.InvoiceDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Customer.Name)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var invoice in Model)
+        {
+            var total = invoice.Lines.Sum(l => l.Quantity * l.UnitPrice);
+
+            <tr>
+                <td>@invoice.Id</td>
+                <td>@invoice.InvoiceDate.ToShortDateString()</td>
+                <td>@invoice.Customer?.Name</td>
+                <td>@total.ToString("C")</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@invoice.Id" class="btn btn-sm btn-info">Details</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
