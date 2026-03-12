@@ -48,6 +48,7 @@ namespace Library.MVC.Controllers.InvoiceDemo
         // GET: Invoices/Create
         public IActionResult Create()
         {
+            ViewData["DorsetTeacher"] = "John";
             ViewData["CustomerId"] = new SelectList(_context.Customers, "Id", "Name");
             return View();
         }
